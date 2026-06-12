@@ -52,9 +52,8 @@ let centerY = canvas.height/2;
 
 const PARTICLES =
     window.innerWidth < 700
-    ? 2500
+    ? 1800
     : 5000;
-
 const particles = [];
 
 class Particle{
@@ -128,7 +127,7 @@ function heartPoints(){
         Math.min(
             canvas.width,
             canvas.height
-        ) / 40;
+        ) / 55;
 
     for(let t=0;t<Math.PI*2;t+=0.01){
 
@@ -171,8 +170,8 @@ function textPoints(text){
 
     const fontSize =
         Math.min(
-            canvas.width * 0.18,
-            canvas.height * 0.22
+            canvas.width * 0.12,
+            canvas.height * 0.12
         );
 
     octx.fillStyle="white";
@@ -200,25 +199,9 @@ function textPoints(text){
 
     const points=[];
 
-    const step =
-        Math.max(
-            4,
-            Math.floor(
-                fontSize / 35
-            )
-        );
+    for(let y=0;y<off.height;y+=5){
 
-    for(
-        let y=0;
-        y<off.height;
-        y+=step
-    ){
-
-        for(
-            let x=0;
-            x<off.width;
-            x+=step
-        ){
+        for(let x=0;x<off.width;x+=5){
 
             const index =
                 (
