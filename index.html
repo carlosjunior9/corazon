@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TE AMO ❤️</title>
+
+<style>
+
+body{
+    margin:0;
+    overflow:hidden;
+    background:black;
+}
+
+canvas{
+    display:block;
+}
+
+#info{
+    position:absolute;
+    top:10px;
+    width:100%;
+    text-align:center;
+    color:white;
+    font-family:Arial;
+    opacity:.7;
+}
+
+</style>
+</head>
+<body>
+
+<div id="info">Haz clic una vez para iniciar la música ❤️</div>
+
+<audio id="musica" loop>
+    <source src="love.mp3" type="audio/mpeg">
+</audio>
+
+<canvas id="canvas"></canvas>
+
+<script>
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let centerX = canvas.width/2;
+let centerY = canvas.height/2;
+
+const PARTICLES = 5000;
+
+const particles = [];
+
+class Particle{
+
+    constructor(){
+
+        this.x = centerX;
+        this.y = centerY;
+
+        this.tx = centerX;
+        this.ty = centerY;
+
+        this.size = 1.5;
+
+        this.color = "#ff66cc";
+    }
+
+    update(){
+
+        this.x += (this.tx - this.x) * 0.03;
+        this.y += (this.ty - this.y) * 0.03;
+    }
+
+    draw(){
+
+        ctx.fillStyle = this.color;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            this.x,
+            this.y,
+            this.size,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+    }
+}
+
+for(let i=0;i<PARTICLES;i++){
+
+    particles.push(
+        new Particle()
+    );
+}
+
+function explosion(){
+
+    particles.forEach(p=>{
+
+        p.x = centerX;
+        p.y = centerY;
+
+        p.tx =
+            centerX +
+            (Math.random()-0.5)*1200;
+
+        p.ty =
+            centerY +
+            (Math.random()-0.5)*1200;
+    });
+}
+
+function heartPoints(){
+
+    const points=[];
+
+    for(let t=0;t<Math.PI*2;t+=0.01){
+
+        const x =
+            16*Math.pow(
+                Math.sin(t),
+                3
+            );
+
+        const y =
+            13*Math.cos(t)
+            -5*Math.cos(2*t)
+            -2*Math.cos(3*t)
+            -Math.cos(4*t);
+
+        points.push({
+
+            x:centerX + x*18,
+
+            y:centerY - y*18
+
+        });
+    }
+
+    return points;
+}
+
+function textPoints(text){
+
+    const off =
+        document.createElement(
+            "canvas"
+        );
+
+    off.width = canvas.width;
+    off.height = canvas.height;
+
+    const octx =
+        off.getContext("2d");
+
+    octx.fillStyle="white";
+
+    octx.textAlign="center";
+
+    octx.font =
+        "bold 180px Arial";
+
+    octx.fillText(
+        text,
+        off.width/2,
+        off.height/2
+    );
+
+    const data =
+        octx.getImageData(
+            0,
+            0,
+            off.width,
+            off.height
+        );
+
+    const points=[];
+
+    for(
+        let y=0;
+        y<off.height;
+        y+=6
+    ){
+
+        for(
+            let x=0;
+            x<off.width;
+            x+=6
+        ){
+
+            const index =
+                (
+                    y*
+                    off.width+
+                    x
+                )*4;
+
+            if(
+                data.data[
+                    index+3
+                ]>128
+            ){
+
+                points.push({
+                    x:x,
+                    y:y
+                });
+            }
+        }
+    }
+
+    return points;
+}
+
+function assignTargets(points){
+
+    for(
+        let i=0;
+        i<particles.length;
+        i++
+    ){
+
+        const p =
+            particles[i];
+
+        const target =
+            points[
+                i %
+                points.length
+            ];
+
+        p.tx = target.x;
+        p.ty = target.y;
+    }
+}
+
+function iniciarSecuencia(){
+
+    explosion();
+
+    setTimeout(()=>{
+
+        assignTargets(
+            heartPoints()
+        );
+
+    },2000);
+
+    setTimeout(()=>{
+
+        assignTargets(
+            textPoints(
+                "TE AMO"
+            )
+        );
+
+    },7000);
+
+    setTimeout(()=>{
+
+        iniciarSecuencia();
+
+    },15000);
+}
+
+function animate(){
+
+    requestAnimationFrame(
+        animate
+    );
+
+    ctx.fillStyle =
+        "rgba(0,0,0,0.15)";
+
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    particles.forEach(p=>{
+
+        p.update();
+
+        p.draw();
+
+    });
+}
+
+animate();
+
+iniciarSecuencia();
+
+window.addEventListener(
+    "resize",
+    ()=>{
+
+        canvas.width =
+            window.innerWidth;
+
+        canvas.height =
+            window.innerHeight;
+
+        centerX =
+            canvas.width/2;
+
+        centerY =
+            canvas.height/2;
+    }
+);
+
+const audio =
+    document.getElementById(
+        "musica"
+    );
+
+document.addEventListener(
+    "click",
+    ()=>{
+
+        audio.play();
+
+        document
+        .getElementById(
+            "info"
+        )
+        .style.display =
+        "none";
+
+    },
+    {once:true}
+);
+
+</script>
+
+</body>
+</html>
